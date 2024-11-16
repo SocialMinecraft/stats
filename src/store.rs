@@ -1,4 +1,6 @@
 use anyhow::Result;
+use chrono::NaiveDateTime;
+use protobuf::SpecialFields;
 use sqlx::types::Uuid;
 use sqlx::PgPool;
 use crate::proto::stats::Stats;
@@ -39,5 +41,51 @@ impl Store {
             .await;
 
         Ok(true)
+    }
+
+    pub async fn get_stats(&self, minecraft_uuid: &str) -> Result<Vec<Stats>> {
+        struct T {
+            pub minecraft_uuid: String,
+            pub server: String,
+
+            pub playtime: Option<i32>,
+            pub blocks_broken: Option<i32>,
+            pub blocks_placed: Option<i32>,
+            pub deaths: Option<i32>,
+
+            pub last_updated: NaiveDateTime,
+        }
+        let re : sqlx::Result<Vec<T>> = sqlx::query_as!(
+            T,
+            r#"
+            SELECT
+                minecraft_uuid, server,
+                playtime, blocks_broken, blocks_placed, deaths,
+                last_updated
+            FROM stats
+            WHERE minecraft_uuid = $1
+            ;"#,
+            Uuid::parse_str(minecraft_uuid)?,
+        )
+            .fetch_all(&self.db)
+            .await;
+
+        let mut vec = Vec::new();
+        if re.is_ok() {
+            vec = re?.into_iter().map(|t| {
+                Stats {
+                    minecraft_uuid: t.minecraft_uuid,
+                    server: t.server,
+                    playtime: t.playtime,
+                    blocks_broken: t.blocks_broken,
+                    blocks_placed: t.blocks_placed,
+                    deaths: t.deaths,
+                    last_updated: Some(t.last_updated.and_utc().timestamp()),
+                    special_fields: SpecialFields::default(),
+                }
+            } ).collect();
+        }
+
+        Ok(vec)
     }
 }

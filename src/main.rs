@@ -7,6 +7,7 @@ use anyhow::Result;
 use tokio::task::JoinSet;
 //use tracing::info;
 use crate::handlers::update::update;
+use crate::handlers::get::get;
 use crate::store::Store;
 
 #[tokio::main]
@@ -36,6 +37,14 @@ async fn main() -> Result<()> {
         util::handle_requests(_nc, "stats.update", move|_nc, msg| {
             update(_store.clone(), _nc, msg)
         }).await.expect("stats.update");
+    });
+
+    let _nc = nc.clone();
+    let _store = store.clone();
+    set.spawn(async move {
+        util::handle_requests(_nc, "stats.get", move|_nc, msg| {
+            get(_store.clone(), _nc, msg)
+        }).await.expect("stats.get");
     });
 
     set.join_all().await;
