@@ -7,11 +7,11 @@ use crate::store::Store;
 pub async fn update(db: Store, nc: Client, msg: async_nats::Message) -> anyhow::Result<()> {
     let request = UpdateStats::parse_from_bytes(&msg.payload).unwrap();
 
+    // Update database
+    db.update_stats(&request.stats).await?;
+
+    // do they want a reply?
     if let Some(reply) = msg.reply {
-
-        // Update database
-        db.update_stats(&request.stats).await?;
-
         // Build and Send Response
         let mut resp = UpdateStatsResponse::new();
         resp.success = true;
