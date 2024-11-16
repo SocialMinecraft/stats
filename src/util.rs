@@ -29,7 +29,7 @@ pub async fn connect_to_nats() -> Result<async_nats::Client> {
 
 pub async fn handle_requests<F, Fut>(nc: async_nats::Client, subject: &str, f: F) -> Result<()>
 where
-    F: Fn(async_nats::Client, async_nats::Message) -> Fut + Send + Copy + Sync + 'static,
+    F: Fn(async_nats::Client, async_nats::Message) -> Fut + Send + Clone + Sync + 'static,
     Fut:  Future<Output = Result<()>> + Send + 'static,
 {
     let subject = subject.to_string();
