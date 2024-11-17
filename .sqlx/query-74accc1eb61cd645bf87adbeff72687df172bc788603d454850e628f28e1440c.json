@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                minecraft_uuid, server,\n                playtime, blocks_broken, blocks_placed, deaths,\n                last_updated\n            FROM stats\n            WHERE minecraft_uuid = $1\n            ;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "minecraft_uuid",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "server",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "playtime",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "blocks_broken",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "blocks_placed",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "deaths",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_updated",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "74accc1eb61cd645bf87adbeff72687df172bc788603d454850e628f28e1440c"
+}
